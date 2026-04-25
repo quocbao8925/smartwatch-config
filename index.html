@@ -43,7 +43,7 @@
         let port;
         async function connectPort() {
             if (!("serial" in navigator)) {
-                alert("Trình duyệt không hỗ trợ! Dùng Chrome/Edge trên máy tính.");
+                alert("Browser not supported! Please use Chrome/Edge on a computer.");
                 return;
             }
 
@@ -51,18 +51,17 @@
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
 
-                // QUAN TRỌNG NHẤT: Bật cờ DTR để ESP32-C3 chịu mở cửa nhận dữ liệu
                 await port.setSignals({ dataTerminalReady: true, requestToSend: true });
 
-                document.getElementById("btnConnect").innerText = "Đã kết nối Cáp (✓)";
+                document.getElementById("btnConnect").innerText = "COM Connected [✓]";
                 document.getElementById("btnConnect").style.background = "#218838";
                 document.getElementById("btnSend").disabled = false;
                 
                 document.getElementById("log").style.color = "blue";
-                document.getElementById("log").innerText = "Cáp đã thông! Lật tay sang CONFIG và bấm Sync.";
+                document.getElementById("log").innerText = "Cable connected! Flip the device to CONFIG and click Sync.";
             } catch (err) {
                 document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Lỗi kết nối cáp: " + err;
+                document.getElementById("log").innerText = "Connection error: " + err;
             }
         }
 
@@ -73,23 +72,21 @@
             const pass = document.getElementById("pass").value;
             const timestamp = Math.floor(Date.now() / 1000); 
 
-            // Cấu trúc \r\n tiêu chuẩn
             const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp }) + "\r\n";
 
             try {
-                // Ép kiểu mảng Byte và bắn thẳng không qua stream
                 const encoder = new TextEncoder();
                 const data = encoder.encode(payload);
                 const writer = port.writable.getWriter();
                 
                 await writer.write(data);
-                writer.releaseLock(); // Bắn xong phải nhả khóa cửa ngay
+                writer.releaseLock();
 
                 document.getElementById("log").style.color = "green";
-                document.getElementById("log").innerText = "Đã nã pháo dữ liệu! Đồng hồ sẽ kêu tít tít tít.";
+                document.getElementById("log").innerText = "Data sent successfully! POMODORO should play 2xBeep sound.";
             } catch (err) {
                 document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Lỗi gửi: " + err;
+                document.getElementById("log").innerText = "Sending error: " + err;
             }
         }
     </script>
