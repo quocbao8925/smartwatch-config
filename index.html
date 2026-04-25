@@ -18,7 +18,7 @@
 <body>
 
     <div class="card">
-        <h2>🍅 POMODORO </h2>
+        <h2>🍅 [POMODORO] </h2>
         
         <div class="step">
             <p><b>Step 1:</b> Connect POMODORO to your computer via USB-C (or C-C).</p>
@@ -57,7 +57,7 @@
                 await port.open({ baudRate: 115200 });
 
                 // Prevent the cable from holding the reset state
-                await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+                //await port.setSignals({ dataTerminalReady: false, requestToSend: false });
 
                 // Set up the data stream
                 const encoder = new TextEncoderStream();
