@@ -18,7 +18,7 @@
 <body>
 
     <div class="card">
-        <h2>🍅 POMODORO Setup</h2>
+        <h2>🍅 POMODORO </h2>
         
         <div class="step">
             <p><b>Step 1:</b> Connect POMODORO to your computer via USB-C (or C-C).</p>
@@ -85,7 +85,7 @@
             const timestamp = Math.floor(Date.now() / 1000); // Get time from computer
 
             // JSON payload matching the C code expectation (\n is required)
-            const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp }) + "\n";
+            const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp }) + "\r\n";
 
             try {
                 await writer.write(payload);
