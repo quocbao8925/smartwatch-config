@@ -41,59 +41,55 @@
 
     <script>
         let port;
-        let writer;
-
         async function connectPort() {
             if (!("serial" in navigator)) {
-                alert("Browser not supported! Please use Google Chrome or Microsoft Edge on a computer.");
+                alert("Trình duyệt không hỗ trợ! Dùng Chrome/Edge trên máy tính.");
                 return;
             }
 
             try {
-                // Prompt user to select the COM port
                 port = await navigator.serial.requestPort();
-                
-                // Open connection (ESP32 will reset here)
                 await port.open({ baudRate: 115200 });
 
-                // Prevent the cable from holding the reset state
-                //await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+                // QUAN TRỌNG NHẤT: Bật cờ DTR để ESP32-C3 chịu mở cửa nhận dữ liệu
+                await port.setSignals({ dataTerminalReady: true, requestToSend: true });
 
-                // Set up the data stream
-                const encoder = new TextEncoderStream();
-                encoder.readable.pipeTo(port.writable);
-                writer = encoder.writable.getWriter();
-
-                // Update UI elements
-                document.getElementById("btnConnect").innerText = "Cable Connected (✓)";
+                document.getElementById("btnConnect").innerText = "Đã kết nối Cáp (✓)";
                 document.getElementById("btnConnect").style.background = "#218838";
                 document.getElementById("btnSend").disabled = false;
                 
                 document.getElementById("log").style.color = "blue";
-                document.getElementById("log").innerText = "Connection established! Now flip the device to the CONFIG screen, wait 5s, and then click Sync.";
+                document.getElementById("log").innerText = "Cáp đã thông! Lật tay sang CONFIG và bấm Sync.";
             } catch (err) {
                 document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Connection error: " + err;
+                document.getElementById("log").innerText = "Lỗi kết nối cáp: " + err;
             }
         }
 
         async function sendData() {
-            if (!writer) return;
+            if (!port) return;
 
             const ssid = document.getElementById("ssid").value;
             const pass = document.getElementById("pass").value;
-            const timestamp = Math.floor(Date.now() / 1000); // Get time from computer
+            const timestamp = Math.floor(Date.now() / 1000); 
 
-            // JSON payload matching the C code expectation (\n is required)
+            // Cấu trúc \r\n tiêu chuẩn
             const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp }) + "\r\n";
 
             try {
-                await writer.write(payload);
+                // Ép kiểu mảng Byte và bắn thẳng không qua stream
+                const encoder = new TextEncoder();
+                const data = encoder.encode(payload);
+                const writer = port.writable.getWriter();
+                
+                await writer.write(data);
+                writer.releaseLock(); // Bắn xong phải nhả khóa cửa ngay
+
                 document.getElementById("log").style.color = "green";
-                document.getElementById("log").innerText = "Data sent successfully! The POMODORO will beep.";
+                document.getElementById("log").innerText = "Đã nã pháo dữ liệu! Đồng hồ sẽ kêu tít tít tít.";
             } catch (err) {
                 document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Send error: " + err;
+                document.getElementById("log").innerText = "Lỗi gửi: " + err;
             }
         }
     </script>
