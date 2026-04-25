@@ -3,62 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartwatch Setup</title>
+    <title>POMODORO Setup</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 50px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-block; }
-        input { display: block; width: 250px; margin: 10px auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        #log { margin-top: 20px; color: green; font-weight: bold; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-block; max-width: 450px; }
+        input { display: block; width: 90%; margin: 10px auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 90%; margin: 10px auto; font-weight: bold; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #btnConnect { background: #28a745; }
+        #log { margin-top: 20px; color: #333; font-weight: bold; font-size: 14px; padding: 10px;}
+        .step { text-align: left; font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2> POMODORO Setup</h2>
-        <p>1. Connect POMODORO to your computer via USB-C (or C-C).</p>
-        <p>2. Flip device to the "CONFIG" screen and wait 5 seconds.</p>
-        <p>3. Enter your WiFi credentials and click the button below.</p>
+        <h2>🍅 POMODORO Setup</h2>
+        
+        <div class="step">
+            <p><b>Step 1:</b> Connect POMODORO to your computer via USB-C (or C-C).</p>
+            <p><b>Step 2:</b> Click the "Connect Cable" button below (The device will briefly reboot due to USB safety mechanisms).</p>
+        </div>
+
+        <button id="btnConnect" onclick="connectPort()">1. Connect Cable</button>
+        
+        <div class="step">
+            <p><b>Step 3:</b> After the screen turns back on, flip the device to the "CONFIG" screen and wait 5 seconds.</p>
+            <p><b>Step 4:</b> Enter your WiFi credentials and click Sync.</p>
+        </div>
         
         <input type="text" id="ssid" placeholder="WiFi Name (SSID)">
         <input type="password" id="pass" placeholder="Password">
-        <button id="connectBtn" onclick="sendData()">Sync Data & Time</button>
-        <div id="log"></div>
+        <button id="btnSend" onclick="sendData()" disabled>2. Sync Data & Time</button>
+        
+        <div id="log">Cable not connected...</div>
     </div>
 
     <script>
-        async function sendData() {
+        let port;
+        let writer;
+
+        async function connectPort() {
             if (!("serial" in navigator)) {
                 alert("Browser not supported! Please use Google Chrome or Microsoft Edge on a computer.");
                 return;
             }
 
+            try {
+                // Prompt user to select the COM port
+                port = await navigator.serial.requestPort();
+                
+                // Open connection (ESP32 will reset here)
+                await port.open({ baudRate: 115200 });
+
+                // Prevent the cable from holding the reset state
+                await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+
+                // Set up the data stream
+                const encoder = new TextEncoderStream();
+                encoder.readable.pipeTo(port.writable);
+                writer = encoder.writable.getWriter();
+
+                // Update UI elements
+                document.getElementById("btnConnect").innerText = "Cable Connected (✓)";
+                document.getElementById("btnConnect").style.background = "#218838";
+                document.getElementById("btnSend").disabled = false;
+                
+                document.getElementById("log").style.color = "blue";
+                document.getElementById("log").innerText = "Connection established! Now flip the device to the CONFIG screen, wait 5s, and then click Sync.";
+            } catch (err) {
+                document.getElementById("log").style.color = "red";
+                document.getElementById("log").innerText = "Connection error: " + err;
+            }
+        }
+
+        async function sendData() {
+            if (!writer) return;
+
             const ssid = document.getElementById("ssid").value;
             const pass = document.getElementById("pass").value;
             const timestamp = Math.floor(Date.now() / 1000); // Get time from computer
 
-            // JSON payload matching the C code expectation
+            // JSON payload matching the C code expectation (\n is required)
             const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp }) + "\n";
 
             try {
-                // Prompt user to select the COM port (CH340 or CP2102)
-                const port = await navigator.serial.requestPort();
-                await port.open({ baudRate: 115200 });
-
-                const encoder = new TextEncoderStream();
-                const outputDone = encoder.readable.pipeTo(port.writable);
-                const writer = encoder.writable.getWriter();
-
                 await writer.write(payload);
-                await writer.close();
-                await outputDone;
-                await port.close();
-
-                document.getElementById("log").innerText = "Data sent successfully! The POMODOROwatch will beep.";
+                document.getElementById("log").style.color = "green";
+                document.getElementById("log").innerText = "Data sent successfully! The POMODORO will beep.";
             } catch (err) {
                 document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Connection error: " + err;
+                document.getElementById("log").innerText = "Send error: " + err;
             }
         }
     </script>
