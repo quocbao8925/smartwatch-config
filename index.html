@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartwatch Setup</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 50px; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-block; }
+        input { display: block; width: 250px; margin: 10px auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        #log { margin-top: 20px; color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🛠️ Smartwatch Setup</h2>
+        <p>1. Connect the smartwatch to your computer via USB cable.</p>
+        <p>2. Tilt your wrist to the "WI CONFIG FI" screen and wait 5 seconds.</p>
+        <p>3. Enter your WiFi credentials and click the button below.</p>
+        
+        <input type="text" id="ssid" placeholder="WiFi Name (SSID)">
+        <input type="password" id="pass" placeholder="Password">
+        <button id="connectBtn" onclick="sendData()">Sync Data & Time</button>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        async function sendData() {
+            if (!("serial" in navigator)) {
+                alert("Browser not supported! Please use Google Chrome or Microsoft Edge on a computer.");
+                return;
+            }
+
+            const ssid = document.getElementById("ssid").value;
+            const pass = document.getElementById("pass").value;
+            const timestamp = Math.floor(Date.now() / 1000); // Get time from computer
+
+            // JSON payload matching the C code expectation
+            const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp }) + "\n";
+
+            try {
+                // Prompt user to select the COM port (CH340 or CP2102)
+                const port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+
+                const encoder = new TextEncoderStream();
+                const outputDone = encoder.readable.pipeTo(port.writable);
+                const writer = encoder.writable.getWriter();
+
+                await writer.write(payload);
+                await writer.close();
+                await outputDone;
+                await port.close();
+
+                document.getElementById("log").innerText = "Data sent successfully! The POMODOROwatch will beep.";
+            } catch (err) {
+                document.getElementById("log").style.color = "red";
+                document.getElementById("log").innerText = "Connection error: " + err;
+            }
+        }
+    </script>
+</body>
+</html>
