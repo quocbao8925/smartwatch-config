@@ -1,115 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POMODORO Setup</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background: #f0f2f5; padding: 40px 10px; width: 95%; max-width: 550px; transition: all 0.3s ease;}
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-block; max-width: 450px; text-align: left; }
-        input[type="text"], input[type="password"], select { display: block; width: 100%; margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
-        input[type="range"] { width: 100%; margin: 10px 0; }
-        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; margin: 15px 0 5px 0; font-weight: bold; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        #btnConnect { background: #28a745; }
-        #log { margin-top: 15px; color: #333; font-weight: bold; font-size: 14px; padding: 10px; text-align: center;}
-        .step { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 15px; }
-        .setting-group { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #e9ecef; }
-        h2 { text-align: center; margin-top: 0; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POMODORO Setup</title>
+    <style>
+        /* Tối ưu nền và font chữ */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background: #f0f2f5; 
+            padding: 40px 15px; 
+            margin: 0;
+        }
+
+        /* Card: Tăng chiều rộng và thêm transition để scale mượt mà */
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            display: inline-block; 
+            width: 100%;
+            max-width: 520px; /* Tăng từ 450px lên 520px để cân đối hơn */
+            text-align: left; 
+            box-sizing: border-box;
+            transition: all 0.3s ease-in-out; /* Hiệu ứng mượt khi nội dung thay đổi */
+        }
+
+        h2 { text-align: center; margin-top: 0; color: #333; margin-bottom: 25px; }
+
+        .step { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 15px; }
+        
+        /* Input & Select: To hơn, dễ thao tác */
+        input[type="text"], input[type="password"], select { 
+            display: block; width: 100%; margin: 12px 0; padding: 12px; 
+            border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        input[type="range"] { width: 100%; margin: 15px 0; cursor: pointer; }
+
+        /* Button: Chỉnh lại padding và hiệu ứng hover */
+        button { 
+            background: #007bff; color: white; border: none; padding: 14px; 
+            font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; 
+            margin: 15px 0 5px 0; font-weight: bold; transition: 0.2s;
+        }
+        button:hover:not(:disabled) { background: #0056b3; transform: translateY(-1px); }
+        button:disabled { background: #cbd5e0; cursor: not-allowed; }
+        
+        #btnConnect { background: #28a745; }
+        #btnConnect:hover { background: #218838; }
+
+        .setting-group { 
+            background: #f8f9fa; padding: 20px; border-radius: 12px; 
+            margin-top: 20px; border: 1px solid #eef0f2; 
+        }
+
+        /* Log: Cố định chiều cao tối thiểu để không làm giật khung hình */
+        #log { 
+            margin-top: 20px; 
+            color: #666; 
+            font-weight: 600; 
+            font-size: 13.5px; 
+            padding: 10px; 
+            text-align: center;
+            min-height: 45px; /* Giữ chỗ trước cho dòng lỗi */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+            word-break: break-word; /* Tránh chữ dài tràn khung */
+        }
+    </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>🍅 [POMODORO] </h2>
-        
-        <div class="step">
-            <p><b>Step 1:</b> Connect POMODORO to your computer via USB.</p>
-            <p><b>Step 2:</b> Click the "Connect Cable" button below.</p>
-        </div>
+    <div class="card">
+        <h2>🍅 [POMODORO]</h2>
+        
+        <div class="step">
+            <p><b>Step 1:</b> Connect POMODORO to your computer via USB.</p>
+            <p><b>Step 2:</b> Click the "Connect Cable" button below.</p>
+        </div>
 
-        <button id="btnConnect" onclick="connectPort()">1. Connect Cable</button>
-        
-        <div class="step" style="margin-top: 20px;">
-            <p><b>Step 3:</b> Flip the device to "CONFIG" screen (Wait 5s).</p>
-            <p><b>Step 4:</b> Setup your preferences below and click Sync.</p>
-        </div>
-        
-        <b>WiFi Settings:</b>
-        <input type="text" id="ssid" placeholder="WiFi Name (SSID)">
-        <input type="password" id="pass" placeholder="Password">
-        
-        <div class="setting-group">
-            <b>Device Settings:</b><br><br>
-            
-            <label>Buzzer Volume: <span id="volVal">50</span>%</label>
-            <input type="range" id="vol" min="0" max="100" value="50" oninput="document.getElementById('volVal').innerText = this.value">
-            
-            <label style="display: block; margin-top: 15px; cursor: pointer;">
-                <input type="checkbox" id="fmt24" checked style="transform: scale(1.2); margin-right: 5px;"> 
-                Use 24-Hour Format (e.g., 14:30)
-            </label>
-            
-            <label style="display: block; margin-top: 15px;">Screen Timeout:</label>
-            <select id="timeout">
-                <option value="10">10 Seconds</option>
-                <option value="15" selected>15 Seconds</option>
-                <option value="20">20 Seconds</option>
-            </select>
-        </div>
+        <button id="btnConnect" onclick="connectPort()">1. Connect Cable</button>
+        
+        <div class="step" style="margin-top: 25px;">
+            <p><b>Step 3:</b> Flip the device to "CONFIG" screen (Wait 5s).</p>
+            <p><b>Step 4:</b> Setup your preferences below and click Sync.</p>
+        </div>
+        
+        <b style="font-size: 15px;">WiFi Settings:</b>
+        <input type="text" id="ssid" placeholder="WiFi Name (SSID)">
+        <input type="password" id="pass" placeholder="Password">
+        
+        <div class="setting-group">
+            <b style="font-size: 15px;">Device Settings:</b><br><br>
+            
+            <label>Buzzer Volume: <span id="volVal">50</span>%</label>
+            <input type="range" id="vol" min="0" max="100" value="50" oninput="document.getElementById('volVal').innerText = this.value">
+            
+            <label style="display: flex; align-items: center; margin-top: 15px; cursor: pointer;">
+                <input type="checkbox" id="fmt24" checked style="width: 18px; height: 18px; margin-right: 10px;"> 
+                Use 24-Hour Format (e.g., 14:30)
+            </label>
+            
+            <label style="display: block; margin-top: 20px;">Screen Timeout:</label>
+            <select id="timeout">
+                <option value="10">10 Seconds</option>
+                <option value="15" selected>15 Seconds</option>
+                <option value="20">20 Seconds</option>
+            </select>
+        </div>
 
-        <button id="btnSend" onclick="sendData()" disabled>2. Sync Data & Settings</button>
-        <div id="log">Cable not connected...</div>
-    </div>
+        <button id="btnSend" onclick="sendData()" disabled>2. Sync Data & Settings</button>
+        <div id="log">Cable not connected...</div>
+    </div>
 
-    <script>
-        let port;
-        async function connectPort() {
-            if (!("serial" in navigator)) { alert("Browser not supported!"); return; }
-            try {
-                port = await navigator.serial.requestPort();
-                await port.open({ baudRate: 115200 });
-                await port.setSignals({ dataTerminalReady: true, requestToSend: true });
+    <script>
+        let port;
+        async function connectPort() {
+            if (!("serial" in navigator)) { 
+                alert("Browser not supported! Please use Chrome or Edge."); 
+                return; 
+            }
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 115200 });
+                await port.setSignals({ dataTerminalReady: true, requestToSend: true });
 
-                document.getElementById("btnConnect").innerText = "COM Connected [✓]";
-                document.getElementById("btnConnect").style.background = "#218838";
-                document.getElementById("btnSend").disabled = false;
-                document.getElementById("log").style.color = "blue";
-                document.getElementById("log").innerText = "Cable connected! Setup settings and click Sync.";
-            } catch (err) {
-                document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Connection error: " + err;
-            }
-        }
+                const btn = document.getElementById("btnConnect");
+                btn.innerText = "COM Connected [✓]";
+                btn.style.background = "#1e7e34";
+                document.getElementById("btnSend").disabled = false;
+                document.getElementById("log").style.color = "#007bff";
+                document.getElementById("log").innerText = "Cable connected! Setup settings and click Sync.";
+            } catch (err) {
+                document.getElementById("log").style.color = "#d9534f";
+                document.getElementById("log").innerText = "Connection error: " + err.message;
+            }
+        }
 
-        async function sendData() {
-            if (!port) return;
+        async function sendData() {
+            if (!port) return;
 
-            const ssid = document.getElementById("ssid").value;
-            const pass = document.getElementById("pass").value;
-            const timestamp = Math.floor(Date.now() / 1000); 
-            
-            // Lấy dữ liệu từ các cài đặt mới
-            const vol = parseInt(document.getElementById("vol").value);
-            const is24h = document.getElementById("fmt24").checked ? 1 : 0;
-            const tout = parseInt(document.getElementById("timeout").value);
+            const ssid = document.getElementById("ssid").value;
+            const pass = document.getElementById("pass").value;
+            const timestamp = Math.floor(Date.now() / 1000); 
+            const vol = parseInt(document.getElementById("vol").value);
+            const is24h = document.getElementById("fmt24").checked ? 1 : 0;
+            const tout = parseInt(document.getElementById("timeout").value);
 
-            // Đóng gói JSON (Dùng ký tự v, h, o cho ngắn gọn để tiết kiệm buffer ESP32)
-            const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp, v: vol, h: is24h, o: tout }) + "\r\n";
+            const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp, v: vol, h: is24h, o: tout }) + "\r\n";
 
-            try {
-                const encoder = new TextEncoder();
-                const writer = port.writable.getWriter();
-                await writer.write(encoder.encode(payload));
-                writer.releaseLock();
-                document.getElementById("log").style.color = "green";
-                document.getElementById("log").innerText = "Sync successful! Device will restart.";
-            } catch (err) {
-                document.getElementById("log").style.color = "red";
-                document.getElementById("log").innerText = "Sending error: " + err;
-            }
-        }
-    </script>
+            try {
+                const encoder = new TextEncoder();
+                const writer = port.writable.getWriter();
+                await writer.write(encoder.encode(payload));
+                writer.releaseLock();
+                document.getElementById("log").style.color = "#28a745";
+                document.getElementById("log").innerText = "Sync thành công! Thiết bị đang khởi động lại...";
+            } catch (err) {
+                document.getElementById("log").style.color = "#d9534f";
+                document.getElementById("log").innerText = "Gửi dữ liệu thất bại: " + err.message;
+            }
+        }
+    </script>
 </body>
 </html>
-làm sao để cửa sổ này được scale lại (phần menu to hơn khi có dòng chữ đỏ)
