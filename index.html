@@ -100,12 +100,46 @@
             text-align: center; 
             display: flex; align-items: center; justify-content: center;
         }
+        /* Nút chuyển đổi giao diện mới */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: auto !important; /* Ghi đè width 100% của button chung */
+            padding: 8px 16px !important;
+            border-radius: 25px !important;
+            border: 1px solid var(--input-border) !important;
+            background: var(--input-bg) !important;
+            color: var(--text-main) !important;
+            font-size: 12px !important;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 !important;
+        }
+        
+        .theme-toggle:hover {
+            border-color: #007bff !important;
+            background: var(--group-bg) !important;
+        }
+        
+        /* Hiệu ứng xoay icon khi đổi chế độ */
+        #theme-icon {
+            font-size: 16px;
+            transition: transform 0.5s ease;
+        }
     </style>
 </head>
 <body onload="loadSavedSettings()">
 
     <div class="card">
-        <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Chuyển chế độ Sáng/Tối">🌓</button>
+        <button id="theme-toggle" class="theme-toggle" onclick="toggleDarkMode()">
+            <span id="theme-icon">☀️</span>
+            <span id="theme-text">LIGHT</span>
+        </button>
         <h2>🍅 P O M O D O R O</h2>
         
         <div class="step">
@@ -229,6 +263,49 @@
             } catch (err) {
                 document.getElementById("log").style.color = "#d9534f";
                 document.getElementById("log").innerText = "Gửi lỗi: " + err.message;
+            }
+        }
+        function updateThemeUI(isDark) {
+            const icon = document.getElementById("theme-icon");
+            const text = document.getElementById("theme-text");
+            const btn = document.getElementById("theme-toggle");
+        
+            if (isDark) {
+                icon.innerText = "🌙";
+                text.innerText = "DARK";
+                icon.style.transform = "rotate(360deg)";
+            } else {
+                icon.innerText = "☀️";
+                text.innerText = "LIGHT";
+                icon.style.transform = "rotate(0deg)";
+            }
+        }
+        
+        // Sửa lại hàm toggleDarkMode
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle("dark-mode");
+            localStorage.setItem("dark_mode", isDark);
+            updateThemeUI(isDark); // Cập nhật chữ và icon
+        }
+        
+        // Sửa lại hàm loadSavedSettings để cập nhật đúng nút khi vừa vào trang
+        function loadSavedSettings() {
+            const isDark = localStorage.getItem("dark_mode") === "true";
+            if (isDark) {
+                document.body.classList.add("dark-mode");
+            }
+            updateThemeUI(isDark); // Thiết lập trạng thái nút ban đầu
+        
+            // ... (giữ nguyên phần load SSID, pass, vol bên dưới như cũ)
+            const saved = localStorage.getItem("pomodoro_settings");
+            if (saved) {
+                const s = JSON.parse(saved);
+                document.getElementById("ssid").value = s.ssid || "";
+                document.getElementById("pass").value = s.pass || "";
+                document.getElementById("vol").value = s.vol || 50;
+                document.getElementById("volVal").innerText = s.vol || 50;
+                document.getElementById("fmt24").checked = s.fmt24 !== false;
+                document.getElementById("timeout").value = s.timeout || "15";
             }
         }
     </script>
