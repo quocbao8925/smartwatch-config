@@ -127,7 +127,7 @@
         </div>
         
         <label>WiFi Name (SSID)</label>
-        <input type="text" id="ssid" placeholder="Enter WiFiSSID..." oninput="saveSettings()">
+        <input type="text" id="ssid" placeholder="Enter SSID WiFi..." oninput="saveSettings()">
 
         <label>WiFi Password</label>
         <div class="input-wrapper">
@@ -160,7 +160,7 @@
         
         <div id="log">Device is not connected...</div>
         
-        <span class="reset-link" onclick="resetAll()">Delete saved data</span>
+        <span class="reset-link" onclick="resetAll()">Delete saved configuration</span>
     </div>
 
     <script>
@@ -204,7 +204,7 @@
         }
 
         function resetAll() {
-            if(confirm("Bạn có muốn xóa toàn bộ cài đặt đã lưu không?")) {
+            if(confirm("Do you really want to delete all the saved configurationconfiguration?")) {
                 localStorage.clear();
                 location.reload();
             }
@@ -225,23 +225,23 @@
 
         // Web Serial
         async function connectPort() {
-            if (!("serial" in navigator)) { alert("Trình duyệt không hỗ trợ!"); return; }
+            if (!("serial" in navigator)) { alert("This browser does not support!"); return; }
             try {
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
                 document.getElementById("btnConnect").innerText = "COM Connected [✓]";
                 document.getElementById("btnConnect").style.background = "#1e7e34";
                 document.getElementById("btnSend").disabled = false;
-                log("Thiết bị đã sẵn sàng!", "#007bff");
+                log("Device is ready!", "#007bff");
             } catch (err) {
-                log("Lỗi kết nối: " + err.message, "#d9534f");
+                log("Connection error: " + err.message, "#d9534f");
             }
         }
 
         async function sendData() {
             if (!port) return;
             const ssid = document.getElementById("ssid").value;
-            if(!ssid) { log("Vui lòng nhập SSID WiFi!", "#d9534f"); return; }
+            if(!ssid) { log("Please enter SSID WiFi!", "#d9534f"); return; }
 
             const s = JSON.parse(localStorage.getItem("pomo_settings_v3"));
             const payload = JSON.stringify({
@@ -254,9 +254,9 @@
                 const writer = port.writable.getWriter();
                 await writer.write(encoder.encode(payload));
                 writer.releaseLock();
-                log("Sync thành công! Thiết bị đang khởi động lại...", "#28a745");
+                log("Sync data successfully! Rebooting device...", "#28a745");
             } catch (err) {
-                log("Lỗi gửi dữ liệu: " + err.message, "#d9534f");
+                log("Data transmission error: " + err.message, "#d9534f");
             }
         }
 
