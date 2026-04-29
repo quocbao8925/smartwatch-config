@@ -118,16 +118,20 @@
             <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
         
-        <h2>🍅 POMODORO</h2>
+        <h2> P🍅M O D O R O</h2>
         
         <button id="btnConnect" class="btn" onclick="connectPort()">1. Connect Cable</button>
+
+        <div class="step">
+            <p><b>2.</b> Configuration</p>
+        </div>
         
         <label>WiFi Name (SSID)</label>
-        <input type="text" id="ssid" placeholder="Tên WiFi..." oninput="saveSettings()">
+        <input type="text" id="ssid" placeholder="Enter WiFiSSIDWiFiSSID..." oninput="saveSettings()">
 
         <label>WiFi Password</label>
         <div class="input-wrapper">
-            <input type="password" id="pass" placeholder="Mật khẩu..." oninput="saveSettings()">
+            <input type="password" id="pass" placeholder="Enter password..." oninput="saveSettings()">
             <!-- SVG Eye Minimalist -->
             <svg id="eye-icon" class="eye-icon" onclick="togglePass()" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -152,11 +156,11 @@
             </select>
         </div>
 
-        <button id="btnSend" class="btn" onclick="sendData()" disabled>2. Sync Data & Settings</button>
+        <button id="btnSend" class="btn" onclick="sendData()" disabled>3. Sync Data & Settings</button>
         
-        <div id="log">Chưa kết nối thiết bị...</div>
+        <div id="log">Device is not connected...</div>
         
-        <span class="reset-link" onclick="resetAll()">Xóa dữ liệu đã lưu</span>
+        <span class="reset-link" onclick="resetAll()">Delete saved data</span>
     </div>
 
     <script>
