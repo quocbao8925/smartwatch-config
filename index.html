@@ -5,43 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POMODORO Setup</title>
     <style>
-        /* Tối ưu nền và font chữ */
+        /* Thiết lập biến màu sắc cho Light và Dark Mode */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #555555;
+            --input-bg: #ffffff;
+            --input-border: #dddddd;
+            --group-bg: #f8f9fa;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-sub: #b0b0b0;
+            --input-bg: #2d2d2d;
+            --input-border: #444444;
+            --group-bg: #252525;
+        }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             text-align: center; 
-            background: #f0f2f5; 
+            background: var(--bg-color); 
+            color: var(--text-main);
             padding: 40px 15px; 
             margin: 0;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* Card: Tăng chiều rộng và thêm transition để scale mượt mà */
         .card { 
-            background: white; 
+            background: var(--card-bg); 
             padding: 40px; 
             border-radius: 16px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
             display: inline-block; 
             width: 100%;
-            max-width: 520px; /* Tăng từ 450px lên 520px để cân đối hơn */
+            max-width: 520px; 
             text-align: left; 
             box-sizing: border-box;
-            transition: all 0.3s ease-in-out; /* Hiệu ứng mượt khi nội dung thay đổi */
+            position: relative;
         }
 
-        h2 { text-align: center; margin-top: 0; color: #333; margin-bottom: 25px; }
+        /* Nút Dark Mode */
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 20px;
+            background: none;
+            border: none;
+            padding: 5px;
+            width: auto;
+        }
 
-        .step { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 15px; }
+        h2 { text-align: center; margin-top: 0; color: #d9534f; margin-bottom: 25px; }
+
+        .step { font-size: 15px; color: var(--text-sub); line-height: 1.6; margin-bottom: 15px; }
         
-        /* Input & Select: To hơn, dễ thao tác */
         input[type="text"], input[type="password"], select { 
             display: block; width: 100%; margin: 12px 0; padding: 12px; 
-            border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+            border: 1px solid var(--input-border); border-radius: 8px; box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--text-main);
             font-size: 15px;
         }
 
         input[type="range"] { width: 100%; margin: 15px 0; cursor: pointer; }
 
-        /* Button: Chỉnh lại padding và hiệu ứng hover */
         button { 
             background: #007bff; color: white; border: none; padding: 14px; 
             font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; 
@@ -54,61 +88,54 @@
         #btnConnect:hover { background: #218838; }
 
         .setting-group { 
-            background: #f8f9fa; padding: 20px; border-radius: 12px; 
-            margin-top: 20px; border: 1px solid #eef0f2; 
+            background: var(--group-bg); padding: 20px; border-radius: 12px; 
+            margin-top: 20px; border: 1px solid var(--input-border); 
         }
 
-        /* Log: Cố định chiều cao tối thiểu để không làm giật khung hình */
         #log { 
             margin-top: 20px; 
-            color: #666; 
             font-weight: 600; 
             font-size: 13.5px; 
-            padding: 10px; 
-            text-align: center;
-            min-height: 45px; /* Giữ chỗ trước cho dòng lỗi */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.4;
-            word-break: break-word; /* Tránh chữ dài tràn khung */
+            min-height: 45px; 
+            text-align: center; 
+            display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
-<body>
+<body onload="loadSavedSettings()">
 
     <div class="card">
-        <h2>🍅 [POMODORO]</h2>
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Chuyển chế độ Sáng/Tối">🌓</button>
+        <h2>🍅 P O M O D O R O</h2>
         
         <div class="step">
-            <p><b>Step 1:</b> Connect POMODORO to your computer via USB.</p>
-            <p><b>Step 2:</b> Click the "Connect Cable" button below.</p>
+            <p><b>Step 1:</b> Connect POMODORO via USB.</p>
+            <p><b>Step 2:</b> Click the "Connect Cable" button.</p>
         </div>
 
         <button id="btnConnect" onclick="connectPort()">1. Connect Cable</button>
         
         <div class="step" style="margin-top: 25px;">
-            <p><b>Step 3:</b> Flip the device to "CONFIG" screen (Wait 5s).</p>
-            <p><b>Step 4:</b> Setup your preferences below and click Sync.</p>
+            <p><b>Step 3:</b> Flip to "CONFIG" screen & Click Sync.</p>
         </div>
         
         <b style="font-size: 15px;">WiFi Settings:</b>
-        <input type="text" id="ssid" placeholder="WiFi Name (SSID)">
-        <input type="password" id="pass" placeholder="Password">
+        <input type="text" id="ssid" placeholder="WiFi Name (SSID)" oninput="saveSettings()">
+        <input type="password" id="pass" placeholder="Password" oninput="saveSettings()">
         
         <div class="setting-group">
             <b style="font-size: 15px;">Device Settings:</b><br><br>
             
             <label>Buzzer Volume: <span id="volVal">50</span>%</label>
-            <input type="range" id="vol" min="0" max="100" value="50" oninput="document.getElementById('volVal').innerText = this.value">
+            <input type="range" id="vol" min="0" max="100" value="50" oninput="updateVolLabel(this.value); saveSettings()">
             
             <label style="display: flex; align-items: center; margin-top: 15px; cursor: pointer;">
-                <input type="checkbox" id="fmt24" checked style="width: 18px; height: 18px; margin-right: 10px;"> 
-                Use 24-Hour Format (e.g., 14:30)
+                <input type="checkbox" id="fmt24" checked style="width: 18px; height: 18px; margin-right: 10px;" onchange="saveSettings()"> 
+                Use 24-Hour Format
             </label>
             
             <label style="display: block; margin-top: 20px;">Screen Timeout:</label>
-            <select id="timeout">
+            <select id="timeout" onchange="saveSettings()">
                 <option value="10">10 Seconds</option>
                 <option value="15" selected>15 Seconds</option>
                 <option value="20">20 Seconds</option>
@@ -121,39 +148,76 @@
 
     <script>
         let port;
-        async function connectPort() {
-            if (!("serial" in navigator)) { 
-                alert("Browser not supported! Please use Chrome or Edge."); 
-                return; 
+
+        // 1. Lưu cài đặt vào localStorage
+        function saveSettings() {
+            const settings = {
+                ssid: document.getElementById("ssid").value,
+                pass: document.getElementById("pass").value,
+                vol: document.getElementById("vol").value,
+                fmt24: document.getElementById("fmt24").checked,
+                timeout: document.getElementById("timeout").value
+            };
+            localStorage.setItem("pomodoro_settings", JSON.stringify(settings));
+        }
+
+        // 2. Tải cài đặt từ localStorage
+        function loadSavedSettings() {
+            // Load theme
+            if (localStorage.getItem("dark_mode") === "true") {
+                document.body.classList.add("dark-mode");
             }
+
+            // Load inputs
+            const saved = localStorage.getItem("pomodoro_settings");
+            if (saved) {
+                const s = JSON.parse(saved);
+                document.getElementById("ssid").value = s.ssid || "";
+                document.getElementById("pass").value = s.pass || "";
+                document.getElementById("vol").value = s.vol || 50;
+                document.getElementById("volVal").innerText = s.vol || 50;
+                document.getElementById("fmt24").checked = s.fmt24 !== false;
+                document.getElementById("timeout").value = s.timeout || "15";
+            }
+        }
+
+        // 3. Xử lý Dark Mode
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle("dark-mode");
+            localStorage.setItem("dark_mode", isDark);
+        }
+
+        function updateVolLabel(val) {
+            document.getElementById('volVal').innerText = val;
+        }
+
+        async function connectPort() {
+            if (!("serial" in navigator)) { alert("Trình duyệt không hỗ trợ Web Serial!"); return; }
             try {
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
-                await port.setSignals({ dataTerminalReady: true, requestToSend: true });
-
-                const btn = document.getElementById("btnConnect");
-                btn.innerText = "COM Connected [✓]";
-                btn.style.background = "#1e7e34";
+                document.getElementById("btnConnect").innerText = "COM Connected [✓]";
+                document.getElementById("btnConnect").style.background = "#1e7e34";
                 document.getElementById("btnSend").disabled = false;
                 document.getElementById("log").style.color = "#007bff";
-                document.getElementById("log").innerText = "Cable connected! Setup settings and click Sync.";
+                document.getElementById("log").innerText = "Cable connected! Click Sync.";
             } catch (err) {
                 document.getElementById("log").style.color = "#d9534f";
-                document.getElementById("log").innerText = "Connection error: " + err.message;
+                document.getElementById("log").innerText = "Error: " + err.message;
             }
         }
 
         async function sendData() {
             if (!port) return;
-
-            const ssid = document.getElementById("ssid").value;
-            const pass = document.getElementById("pass").value;
-            const timestamp = Math.floor(Date.now() / 1000); 
-            const vol = parseInt(document.getElementById("vol").value);
-            const is24h = document.getElementById("fmt24").checked ? 1 : 0;
-            const tout = parseInt(document.getElementById("timeout").value);
-
-            const payload = JSON.stringify({ s: ssid, p: pass, t: timestamp, v: vol, h: is24h, o: tout }) + "\r\n";
+            const settings = JSON.parse(localStorage.getItem("pomodoro_settings"));
+            const payload = JSON.stringify({
+                s: settings.ssid,
+                p: settings.pass,
+                t: Math.floor(Date.now() / 1000),
+                v: parseInt(settings.vol),
+                h: settings.fmt24 ? 1 : 0,
+                o: parseInt(settings.timeout)
+            }) + "\r\n";
 
             try {
                 const encoder = new TextEncoder();
@@ -161,10 +225,10 @@
                 await writer.write(encoder.encode(payload));
                 writer.releaseLock();
                 document.getElementById("log").style.color = "#28a745";
-                document.getElementById("log").innerText = "Sync thành công! Thiết bị đang khởi động lại...";
+                document.getElementById("log").innerText = "Sync thành công!";
             } catch (err) {
                 document.getElementById("log").style.color = "#d9534f";
-                document.getElementById("log").innerText = "Gửi dữ liệu thất bại: " + err.message;
+                document.getElementById("log").innerText = "Gửi lỗi: " + err.message;
             }
         }
     </script>
