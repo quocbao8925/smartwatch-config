@@ -7,46 +7,86 @@
     <style>
         /* Thiết lập biến màu sắc cho Light và Dark Mode */
         :root {
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
+            --bg-color: #eef2f7;
+            --card-bg: rgba(255, 255, 255, 0.8); /* Trong suốt nhẹ */
             --text-main: #333333;
             --text-sub: #555555;
-            --input-bg: #ffffff;
-            --input-border: #dddddd;
-            --group-bg: #f8f9fa;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-border: #d1d9e6;
+            --group-bg: rgba(248, 249, 250, 0.5);
+            --accent-color: #d9534f;
         }
 
         .dark-mode {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-sub: #b0b0b0;
-            --input-bg: #2d2d2d;
-            --input-border: #444444;
-            --group-bg: #252525;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: #334155;
+            --group-bg: rgba(51, 65, 85, 0.3);
         }
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             text-align: center; 
-            background: var(--bg-color); 
+            background-color: var(--bg-color); 
             color: var(--text-main);
             padding: 40px 15px; 
             margin: 0;
-            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--input-border) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+        .bg-blob {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #f06595 100%);
+            filter: blur(80px);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.15;
+            animation: move 20s infinite alternate;
         }
 
+        .bg-blob.two {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            width: 300px;
+            height: 300px;
+            right: -100px;
+            bottom: -100px;
+            animation-duration: 15s;
+        }
+        @keyframes move {
+            from { transform: translate(-10%, -10%) rotate(0deg); }
+            to { transform: translate(20%, 20%) rotate(360deg); }
+        }
         .card { 
             background: var(--card-bg); 
+            backdrop-filter: blur(12px); /* Hiệu ứng kính mờ */
+            -webkit-backdrop-filter: blur(12px);
             padding: 40px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
-            display: inline-block; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
             width: 100%;
             max-width: 520px; 
             text-align: left; 
-            box-sizing: border-box;
             position: relative;
+            z-index: 10;
         }
 
         /* Nút Dark Mode */
@@ -103,22 +143,17 @@
         /* Nút chuyển đổi giao diện mới */
         .theme-toggle {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: auto !important; /* Ghi đè width 100% của button chung */
-            padding: 8px 16px !important;
-            border-radius: 25px !important;
-            border: 1px solid var(--input-border) !important;
+            top: 20px; right: 20px;
             background: var(--input-bg) !important;
-            color: var(--text-main) !important;
-            font-size: 12px !important;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            border: 1px solid var(--input-border) !important;
+            backdrop-filter: blur(5px);
+            padding: 8px 15px !important;
+            border-radius: 20px !important;
+            width: auto !important;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 0 !important;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px !important; font-weight: bold;
+            color: var(--text-main) !important;
         }
         
         .theme-toggle:hover {
@@ -131,9 +166,13 @@
             font-size: 16px;
             transition: transform 0.5s ease;
         }
+        input, select, button { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body onload="loadSavedSettings()">
+
+    <div class="bg-blob"></div>
+    <div class="bg-blob two"></div>
 
     <div class="card">
         <button id="theme-toggle" class="theme-toggle" onclick="toggleDarkMode()">
