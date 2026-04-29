@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POMODORO Setup Pro</title>
     <style>
+        /* Hệ thống màu sắc tối ưu */
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #f4f7fa;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
+            --text-main: #2d3436;
+            --text-sub: #636e72;
             --input-bg: #ffffff;
-            --input-border: #e2e8f0;
+            --input-border: #dfe6e9;
             --accent: #d9534f;
+            --btn-green: #2ecc71;
+            --btn-blue: #0984e3;
         }
 
         .dark-mode {
@@ -25,74 +28,87 @@
         }
 
         body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background-color: var(--bg-color); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: var(--bg-color); 
             color: var(--text-main);
             margin: 0; min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            transition: background 0.3s;
+            transition: background 0.3s ease;
         }
 
-        /* Nền Gradient tĩnh - Không lag */
+        /* Thêm một chút trang trí nền nhẹ nhàng, không lag */
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 10% 20%, rgba(217, 83, 79, 0.05) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(0, 123, 255, 0.05) 0%, transparent 40%);
+            background: radial-gradient(circle at 0% 0%, rgba(217, 83, 79, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 100% 100%, rgba(9, 132, 227, 0.03) 0%, transparent 50%);
             z-index: -1;
         }
 
         .card { 
             background: var(--card-bg); 
-            padding: 35px; border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            width: 100%; max-width: 480px; 
+            padding: 40px; border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
+            width: 95%; max-width: 500px; 
             position: relative; border: 1px solid var(--input-border);
+            box-sizing: border-box;
         }
 
+        /* Theme Toggle (Nút Light/Dark) */
         .theme-toggle {
             position: absolute; top: 20px; right: 20px;
             background: var(--input-bg); border: 1px solid var(--input-border);
-            padding: 6px 12px; border-radius: 20px; cursor: pointer;
-            color: var(--text-main); font-size: 12px; font-weight: bold;
-            display: flex; align-items: center; gap: 5px;
+            padding: 8px 16px; border-radius: 30px; cursor: pointer;
+            color: var(--text-main); font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; gap: 8px;
+            transition: 0.3s;
         }
 
-        h2 { text-align: center; color: var(--accent); margin-bottom: 25px; }
+        #theme-icon { transition: transform 0.5s ease; font-size: 14px; }
 
-        .input-group { position: relative; margin: 15px 0; }
+        h2 { text-align: center; color: var(--accent); letter-spacing: 2px; margin-top: 10px; }
+
+        .input-wrapper { position: relative; margin-top: 8px; }
         
-        input, select { 
-            width: 100%; padding: 12px; border-radius: 10px; 
+        label { font-size: 13px; font-weight: 700; color: var(--text-sub); display: block; margin-top: 15px; }
+
+        input[type="text"], input[type="password"], select { 
+            width: 100%; padding: 12px 15px; border-radius: 10px; 
             border: 1px solid var(--input-border); background: var(--input-bg);
             color: var(--text-main); box-sizing: border-box; font-size: 14px;
+            margin-top: 5px; outline: none;
         }
 
-        .pass-toggle {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            cursor: pointer; opacity: 0.6; font-size: 14px;
+        input:focus { border-color: var(--btn-blue); }
+
+        /* Icon mắt tối giản (SVG) */
+        .eye-icon {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; width: 20px; height: 20px; opacity: 0.5;
+            transition: 0.3s; fill: none; stroke: var(--text-main); stroke-width: 2;
         }
+        .eye-icon:hover { opacity: 1; }
 
         .setting-group { 
-            background: var(--bg-color); padding: 20px; border-radius: 12px; 
+            background: var(--bg-color); padding: 20px; border-radius: 15px; 
             margin: 20px 0; border: 1px solid var(--input-border); 
         }
 
-        button.main-btn { 
-            background: #007bff; color: white; border: none; padding: 14px; 
-            border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer;
-            margin-top: 10px; transition: 0.2s;
+        .btn { 
+            border: none; padding: 15px; border-radius: 12px; width: 100%; 
+            font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 15px;
         }
+        #btnConnect { background: var(--btn-green); color: white; margin-bottom: 10px; }
+        #btnSend { background: var(--btn-blue); color: white; margin-top: 10px; }
+        .btn:disabled { background: #cbd5e0 !important; cursor: not-allowed; transform: none !important; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-        button.main-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
-        
-        #btnConnect { background: #28a745; margin-bottom: 15px; }
+        #log { margin-top: 20px; font-size: 13px; min-height: 40px; text-align: center; font-weight: 600; line-height: 1.4; }
 
         .reset-link { 
-            display: block; text-align: center; margin-top: 15px; 
-            font-size: 12px; color: var(--text-sub); text-decoration: none; cursor: pointer;
+            display: block; text-align: center; margin-top: 20px; 
+            font-size: 11px; color: var(--text-sub); text-decoration: none; cursor: pointer; opacity: 0.6;
         }
-
-        #log { margin-top: 15px; font-size: 13px; min-height: 40px; text-align: center; font-weight: 500; }
+        .reset-link:hover { opacity: 1; color: var(--accent); }
     </style>
 </head>
 <body onload="loadSavedSettings()">
@@ -102,50 +118,51 @@
             <span id="theme-icon">☀️</span> <span id="theme-text">LIGHT</span>
         </button>
         
-        <h2>🍅 POMODORO CONFIG</h2>
+        <h2>🍅 POMODORO</h2>
         
-        <button id="btnConnect" class="main-btn" onclick="connectPort()">1. Connect Device</button>
+        <button id="btnConnect" class="btn" onclick="connectPort()">1. Connect Cable</button>
         
-        <div class="input-group">
-            <label style="font-size: 13px; font-weight: 600;">WiFi Name (SSID)</label>
-            <input type="text" id="ssid" placeholder="Enter WiFi name..." oninput="saveSettings()">
-        </div>
+        <label>WiFi Name (SSID)</label>
+        <input type="text" id="ssid" placeholder="Tên WiFi..." oninput="saveSettings()">
 
-        <div class="input-group">
-            <label style="font-size: 13px; font-weight: 600;">WiFi Password</label>
-            <input type="password" id="pass" placeholder="••••••••" oninput="saveSettings()">
-            <span class="pass-toggle" onclick="togglePass()">👁️</span>
+        <label>WiFi Password</label>
+        <div class="input-wrapper">
+            <input type="password" id="pass" placeholder="Mật khẩu..." oninput="saveSettings()">
+            <!-- SVG Eye Minimalist -->
+            <svg id="eye-icon" class="eye-icon" onclick="togglePass()" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
         </div>
         
         <div class="setting-group">
-            <label style="font-size: 13px; font-weight: 600;">Buzzer Volume: <span id="volVal">50</span>%</label>
-            <input type="range" id="vol" min="0" max="100" value="50" oninput="updateVol(this.value); saveSettings()">
+            <label style="margin-top:0">Buzzer Volume: <span id="volVal">50</span>%</label>
+            <input type="range" id="vol" min="0" max="100" style="width:100%; margin-top:10px;" oninput="updateVol(this.value); saveSettings()">
             
-            <div style="display: flex; align-items: center; margin-top: 15px; justify-content: space-between;">
-                <span style="font-size: 13px; font-weight: 600;">24-Hour Format</span>
-                <input type="checkbox" id="fmt24" checked style="width: 20px;" onchange="saveSettings()">
+            <div style="display: flex; align-items: center; margin-top: 20px; justify-content: space-between;">
+                <span style="font-size: 14px; font-weight: 600;">24-Hour Format</span>
+                <input type="checkbox" id="fmt24" checked onchange="saveSettings()">
             </div>
 
-            <div style="margin-top: 15px;">
-                <label style="font-size: 13px; font-weight: 600;">Screen Timeout</label>
-                <select id="timeout" onchange="saveSettings()">
-                    <option value="10">10 Seconds</option>
-                    <option value="15" selected>15 Seconds</option>
-                    <option value="30">30 Seconds</option>
-                </select>
-            </div>
+            <label>Screen Timeout</label>
+            <select id="timeout" onchange="saveSettings()">
+                <option value="10">10 Seconds</option>
+                <option value="15" selected>15 Seconds</option>
+                <option value="20">20 Seconds</option>
+            </select>
         </div>
 
-        <button id="btnSend" class="main-btn" onclick="sendData()" disabled>2. Sync & Restart</button>
+        <button id="btnSend" class="btn" onclick="sendData()" disabled>2. Sync Data & Settings</button>
         
-        <div id="log">Waiting for connection...</div>
+        <div id="log">Chưa kết nối thiết bị...</div>
         
-        <a class="reset-link" onclick="resetAll()">Clear saved data</a>
+        <span class="reset-link" onclick="resetAll()">Xóa dữ liệu đã lưu</span>
     </div>
 
     <script>
         let port;
 
+        // Ẩn hiện mật khẩu
         function togglePass() {
             const p = document.getElementById("pass");
             p.type = p.type === "password" ? "text" : "password";
@@ -153,6 +170,7 @@
 
         function updateVol(val) { document.getElementById("volVal").innerText = val; }
 
+        // Lưu dữ liệu
         function saveSettings() {
             const settings = {
                 ssid: document.getElementById("ssid").value,
@@ -161,15 +179,16 @@
                 fmt24: document.getElementById("fmt24").checked,
                 timeout: document.getElementById("timeout").value
             };
-            localStorage.setItem("pomo_v2", JSON.stringify(settings));
+            localStorage.setItem("pomo_settings_v3", JSON.stringify(settings));
         }
 
+        // Tải dữ liệu
         function loadSavedSettings() {
-            const isDark = localStorage.getItem("dark") === "true";
+            const isDark = localStorage.getItem("dark_mode") === "true";
             if (isDark) document.body.classList.add("dark-mode");
             updateThemeUI(isDark);
 
-            const saved = JSON.parse(localStorage.getItem("pomo_v2"));
+            const saved = JSON.parse(localStorage.getItem("pomo_settings_v3"));
             if (saved) {
                 document.getElementById("ssid").value = saved.ssid || "";
                 document.getElementById("pass").value = saved.pass || "";
@@ -181,50 +200,60 @@
         }
 
         function resetAll() {
-            if(confirm("Xóa toàn bộ dữ liệu đã lưu?")) {
-                localStorage.removeItem("pomo_v2");
+            if(confirm("Bạn có muốn xóa toàn bộ cài đặt đã lưu không?")) {
+                localStorage.clear();
                 location.reload();
             }
         }
 
         function toggleDarkMode() {
             const isDark = document.body.classList.toggle("dark-mode");
-            localStorage.setItem("dark", isDark);
+            localStorage.setItem("dark_mode", isDark);
             updateThemeUI(isDark);
         }
 
         function updateThemeUI(isDark) {
-            document.getElementById("theme-icon").innerText = isDark ? "🌙" : "☀️";
+            const icon = document.getElementById("theme-icon");
+            icon.innerText = isDark ? "🌙" : "☀️";
             document.getElementById("theme-text").innerText = isDark ? "DARK" : "LIGHT";
+            icon.style.transform = isDark ? "rotate(360deg)" : "rotate(0deg)";
         }
 
+        // Web Serial
         async function connectPort() {
+            if (!("serial" in navigator)) { alert("Trình duyệt không hỗ trợ!"); return; }
             try {
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 115200 });
-                document.getElementById("btnConnect").innerText = "Device Connected ✓";
-                document.getElementById("btnConnect").style.background = "#218838";
+                document.getElementById("btnConnect").innerText = "COM Connected [✓]";
+                document.getElementById("btnConnect").style.background = "#1e7e34";
                 document.getElementById("btnSend").disabled = false;
-                log("Ready to sync!", "#007bff");
-            } catch (e) { log("Connection failed: " + e.message, "#d9534f"); }
+                log("Thiết bị đã sẵn sàng!", "#007bff");
+            } catch (err) {
+                log("Lỗi kết nối: " + err.message, "#d9534f");
+            }
         }
 
         async function sendData() {
+            if (!port) return;
             const ssid = document.getElementById("ssid").value;
-            if (!ssid) { log("Please enter WiFi Name!", "#d9534f"); return; }
+            if(!ssid) { log("Vui lòng nhập SSID WiFi!", "#d9534f"); return; }
 
-            const s = JSON.parse(localStorage.getItem("pomo_v2"));
+            const s = JSON.parse(localStorage.getItem("pomo_settings_v3"));
             const payload = JSON.stringify({
                 s: s.ssid, p: s.pass, t: Math.floor(Date.now()/1000), 
                 v: parseInt(s.vol), h: s.fmt24?1:0, o: parseInt(s.timeout)
             }) + "\r\n";
 
             try {
+                const encoder = new TextEncoder();
                 const writer = port.writable.getWriter();
-                await writer.write(new TextEncoder().encode(payload));
+                await writer.write(encoder.encode(payload));
                 writer.releaseLock();
-                log("Successfully Synced! Device restarting...", "#28a745");
-            } catch (e) { log("Sync error: " + e.message, "#d9534f"); }
+                log("Sync thành công! Thiết bị đang khởi động lại...", "#28a745");
+            } catch (err) {
+                log("Lỗi gửi dữ liệu: " + err.message, "#d9534f");
+            }
         }
 
         function log(msg, color) {
